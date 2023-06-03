@@ -1,47 +1,22 @@
-# lab2_panchiwala_smp2478
-# UTA ID: 1001982478
-# Name: Shivani Manojkumar Panchiwala
-# Completion Date: 10/31/2021
+# Student Name: Shivani Panchiwala
+# Student ID: 1001982478
+
+import socket
+import pickle
 
 
-# Client Code
-from socket import *  # import socket module
+sock=socket.socket() # Create a socket object
+sock.connect(("127.0.0.5",5067)) # Connect with Server A
 
-sock = socket()  # Build Socket Object
-sock.connect(('localhost', 5009))  # bind host address and port together and connect to the server A
+data="Temp"
+
 while True:
-    data = sock.recv(4096)
-    #print(data)
-    if data:
-        serverBFiles = data.decode("utf-8")
-        print(serverBFiles)
-# receive the file infos
-# receive using client socket, not server socket
-received = client_socket.recv(4096).decode()
-merge_files, filesize = received.split(SEPARATOR)
-# remove absolute path if there is
-filename = os.path.basename(merge_files)
-# convert to integer
-filesize = int(filesize)
-
-# start receiving the file from the socket
-# and writing to the file stream
-progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-with open(filename, "wb") as f:
-    while True:
-        # read 1024 bytes from the socket (receive)
-        bytes_read = client_socket.recv(BUFFER_SIZE)
-        if not bytes_read:
-            # nothing is received
-            # file transmitting is done
-            break
-        # write to the file the bytes we just received
-        f.write(bytes_read)
-        # update the progress bar
-        progress.update(len(bytes_read))
+    Filename = input("Enter server lock or unlock index: ")  #Input from User
+    sock.sendall(Filename.encode('utf-8')) # Sharing the Filename which is received from User to the Server A
+    data=sock.recv(4096) # Data is received from Server A
+    decodeData=pickle.loads(data) # Unpickling the data received from Server A
+    print("Data is Appended")  # Print Append data
+    print(decodeData) # Printing the Appended data which is shared by Server A
 
 
-
-
-
-
+sock.close()  # Close the Client
