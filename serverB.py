@@ -1,42 +1,24 @@
-import socket     # import socket module
+# lab2_panchiwala_smp2478
+# UTA ID: 1001982478
+# Name: Shivani Manojkumar Panchiwala
+# Completion Date: 10/31/2021
+
 import os
-import time       # import time module
-
-# SERVER B CODE
-# create a socket at server side
-# using TCP / IP protocol
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(('', 5021))              # bind the socket with server and port number
-sock.listen(2)                        #allow maximum 2 connection to the socket
-client, addr = sock.accept()      #wait till a client accept and establish the connection
-print("CONNECTION FROM:", str(addr))   # display client address
-#client.send(b"This is Server B.")
-dir_name = 'C:\\Users\\pshiv\\PycharmProjects\\pythonProject\\SP'   # Path of the folder
-arr = os.listdir(dir_name)      # list out the files from directory
+import socketserver
+from helper import helper
 
 
-sending = []  # Get list
-data = ""
-for file_name in arr:
+class MyTCPHandler(socketserver.BaseRequestHandler):
+    def handle(self):
+        dir_name = 'C:\\Users\\pshiv\\PycharmProjects\\lab#_panchiwala_smp2478\\SP'  # Path of the folder
+        arr = os.listdir(dir_name)  # list out the files from directory
+        help = helper()
+        sending = help.getFilesWithMetadata(dir_name, arr)
+        #print(sending)
+        self.request.send(str(sending).encode()) # send the data
 
-    file_path = os.path.join(dir_name, file_name) # join the file path with directory
 
-    timestamp_str = time.strftime(  '%m/%d/%Y',                 # last modification date of file
-                                time.gmtime(os.path.getmtime(file_path)))
-    #print(timestamp_str)
-    files_with_size = (os.stat(file_path).st_size)  # Get file Size in bytes
-    def human_readable_size(size, decimal_places=2):   # Get human readable version of file size
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-            if size < 1024.0:
-                break
-            size /= 1024.0
-        return f"{size:.{decimal_places}f}{unit}"
-    human_size = (human_readable_size(files_with_size))
-    #data = []
-    data = (file_name, human_size, timestamp_str)      # Get filename, human readable size, date into data
-    sending.append(data)                      # append data to the sending which is list
-
-client.sendall(str(sending).encode())      # send files to the client and encode it
-
-# disconnect the server
-client.close()
+if __name__ == "__main__":
+    HOST, PORT = "localhost", 5025  # bind host address and port together and connect to the client
+    server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
+    server.serve_forever()
